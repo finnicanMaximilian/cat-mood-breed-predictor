@@ -1,0 +1,9 @@
+# Ignore model files
+__pycache__/
+*.pyc
+models/
+models/*.h5
+models/*.keras
+models/*.pb
+models/model_weights/
+cat_mood_model.h5

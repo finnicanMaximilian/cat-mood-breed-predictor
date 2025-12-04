@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cat Mood & Breed Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        input[type="file"], input[type="text"] {
+            margin: 10px 0;
+            padding: 8px;
+            font-size: 14px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        #preview {
+            max-width: 300px;
+            margin: 20px 0;
+            display: none;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cat Mood & Breed Predictor</h1>
+    <p>Upload a cat image to see the predicted breed and mood!</p>
+
+    <input type="text" id="catName" placeholder="Enter your cat's name (optional)">
+    <br>
+    <input type="file" id="fileInput" name="image" accept="image/*" required>
+    <br>
+    <button id="predictBtn">Predict</button>
+
+    <div>
+        <img id="preview" src="#" alt="Cat Preview">
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const predictBtn = document.getElementById('predictBtn');
+        const resultsDiv = document.getElementById('results');
+        const catNameInput = document.getElementById('catName');
+
+        // Show preview of uploaded image
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if(file){
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
+        });
+
+        // Fun mood messages
+        const moodMessages = {
+            curious: "is super curious! 🧐",
+            eepy: "looks sleepy 😴",
+            grumpy: "seems grumpy 😾",
+            happy: "is happy 😺",
+            zoomies: "has the zoomies! 🏃‍♂️💨"
+        };
+
+        // Upload file and get predictions
+        predictBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if(!file){
+                alert("Please select a file first!");
+                return;
+            }
+
+            const catName = catNameInput.value.trim() || "Your cat";
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            resultsDiv.innerHTML = "Predicting...";
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if(!response.ok) throw new Error("Prediction failed");
+
+                const data = await response.json();
+
+                // Construct fun message
+                const moodMessage = moodMessages[data.mood_prediction] || data.mood_prediction;
+
+                resultsDiv.innerHTML = `
+                    <p>🐾 <strong>${catName}</strong> is predicted to be a <strong>${data.breed_prediction}</strong> (${(data.breed_confidence*100).toFixed(1)}%)</p>
+                    <p>🐾 And ${moodMessage} (${(data.mood_confidence*100).toFixed(1)}%)</p>
+                `;
+
+            } catch (error) {
+                resultsDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
