@@ -92,7 +92,7 @@ cat-mood-predictor/
 Installation
 
 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/cat-mood-predictor.git
+git clone https://github.com/finnicanMaximilian/cat-mood-breed-predictor.git
 cd cat-mood-predictor
 
 2. Create a virtual environment
